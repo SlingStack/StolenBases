@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace BaseRunnerLib.Connections
+namespace StolenBasesLib.Connections
 {
     public class SqlServer : Connection
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaseRunnerLib.Connections
+namespace StolenBasesLib.Connections
 {
     public class Connection
     {

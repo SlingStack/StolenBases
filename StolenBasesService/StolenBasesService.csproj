@@ -15,6 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BaseRunnerLib\StolenBasesLib.csproj" />
+    <ProjectReference Include="..\StolenBasesLib\StolenBasesLib.csproj" />
   </ItemGroup>
 </Project>
