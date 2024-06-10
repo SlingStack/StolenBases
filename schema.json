@@ -1,0 +1,87 @@
+{
+    "id": "uuid",
+    "sourceSystem": "OnBase",
+    "sourceId": 0,          
+    "metadata": {        
+        "onbaseDocument": {            
+            "documentHandle": 0, 
+            "documentName" : "autoname string generated",
+            "docTypeGrp": "string",
+            "docType": "string",
+            "documentDate": "date/time",
+            "storageDate": "date/time",  
+            "createdBy": "string",   
+            "status": "Indexed",  
+            "batchNum": 0,     
+            "keywords": {
+                "standalone": [
+                    {
+                        "name": "string",
+                        "values": [ "string" ]
+                    }
+                ]
+            },
+            "revsions" :[
+                {
+                    "revNumber": 0,
+                    "revDate": "date/time",
+                    "revComment": "string",
+                    "renditions":[
+                        {                            
+                            "default": true,
+                            "renId": 0,
+                            "createdBy": "string",
+                            "createdDate": "date/time",
+                            "Comment": "string",
+                            "file":[
+                                {
+                                    "fileName": "string",
+                                    "filePath": "string",
+                                    "mimeType": "string",
+                                    "ext": "string",
+                                    "fileSize": 0,
+                                    "byteRangeStart": 0,
+                                    "byteRangeEnd": 0,
+                                    "pageCount": 0
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],            
+            "audit":{                
+                "transactionLog": [
+                    {
+                        "transNum": 0,
+                        "message": "string",
+                        "type": "string",
+                        "logDate": "date/time",
+                        "user": "string",
+                        "docRevNum":0                      
+                    }
+                ],
+                "wfLog":[
+                    {
+                        "lifecycle": "string",
+                        "queue": "string",
+                        "entryUser" : "string",
+                        "entryDate": "date/time",
+                        "exitDate": "date/time",
+                        "exitUser": "string",
+                        "toQueue": "string"
+                    }
+                ],
+                "wfTransactions":[
+                    {
+                        "transNum": 0,
+                        "lifecycle": "string",
+                        "queue": "string",
+                        "user":"string",
+                        "logsDate": "date/time",
+                        "message" : "string"
+                    }
+                ]
+            }
+        }
+    }
+}
