@@ -8,5 +8,7 @@ namespace StolenBasesLib.Connections
 {
     public class Connection
     {
+        public string Name { get; private set; }
+        public bool Default { get; private set; }
     }
 }

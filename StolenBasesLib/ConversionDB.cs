@@ -1,5 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Npgsql;
+using StolenBasesLib.Connections;
+using StolenBasesLib.Models;
+using StolenBasesLib.Models.OnBase;
+using Supabase.Postgrest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,100 +14,70 @@ namespace StolenBasesLib
 {
     public static class ConversionDB
     {
-        public static Npgsql.NpgsqlConnection Connection { get; private set; } = new Npgsql.NpgsqlConnection();
+        public static SupabaseConnection? Connection { get; private set; }
 
-        public static void SetConnectionString(string connectionString)
+        public static async Task SetConnectionParameters(string url, string apiKey)
         {
-            Connection.ConnectionString = connectionString;
+            Connection = await SupabaseConnection.InitializeClient(url, apiKey);
         }
 
-        public static async Task<bool> IdentifierExists<T>(T identifier)
+        public static async Task<bool> IdentifierExists<T>(T identifier, Type table)
         {
-            await Connection.OpenAsync();
-            string identifierStr = string.Empty;
+            if(Connection == null)
+                throw new ArgumentNullException(nameof(Connection));
 
-            if(typeof(T) == typeof(string))
+            switch (table.ToString())
             {
-                identifierStr = $"'{identifier}'";
-            }
-            else
-            {
-                identifierStr = identifier.ToString();
-            }
-
-            string query = $"SELECT identifier FROM ConversionObjects WHERE identifier = {identifierStr}";
-
-            using (NpgsqlCommand command = Connection.CreateCommand())
-            {
-                command.CommandText = query;
-                using (NpgsqlDataReader reader = await command.ExecuteReaderAsync())
-                {
-                    bool result = reader.HasRows;
-                    await Connection.CloseAsync();
-                    return result;
-                }
-            }
+                case "OnBaseDocument":
+					var result = await Connection.client.From<Document>().Where(a => a.DocHandle == Convert.ToInt32(identifier)).Single();
+                    return result == null ? false : true;
+                default:
+                    throw new NotSupportedException();
+			}
         }
 
-        public static async Task InsertConversionObject<T>(T identifier)
+        public static async Task InsertConversionObject<T>(T identifier, Type table)
         {
-            await Connection.OpenAsync();
-            string identifierStr = string.Empty;
+			if (Connection == null)
+				throw new ArgumentNullException(nameof(Connection));
 
-            if (typeof(T) == typeof(string))
-            {
-                identifierStr = $"'{identifier}'";
-            }
-            else
-            {
-                identifierStr = identifier.ToString();
-            }
-
-            string query = $"INSERT INTO \"ConversionObjects\" (identifier, converted) VALUES ({identifierStr}, false)";
-
-            using (NpgsqlCommand command = Connection.CreateCommand())
-            {
-                command.CommandText = query;
-                await command.ExecuteNonQueryAsync();
-                await Connection.CloseAsync();
-            }
-        }
-        
-        public static bool TestConnection()
-        {
-            try
-            {
-                Connection.Open();
-                Connection.Close();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static async Task<T> GetMaxIdentifier<T>()
-        {
-            await Connection.OpenAsync();
-            string query = $"SELECT TOP (1) identifier FROM ConversionObjects ORDER BY identifier DESC";
-
-			using (NpgsqlCommand command = Connection.CreateCommand())
+			switch (table.ToString())
 			{
-				command.CommandText = query;
-				using (NpgsqlDataReader reader = await command.ExecuteReaderAsync())
-				{
-                    if (!reader.HasRows)
-                    {
-						await Connection.CloseAsync();
-						return default(T);
-                    }
+				case "OnBaseDocument":
+                    Document document = new Document { DocHandle = Convert.ToInt32(identifier) };
+					var result = await Connection.client.From<Document>().Insert(document);
+                    return;
+				default:
+					throw new NotSupportedException();
+			}
+		}
+        
+        //public static bool TestConnection()
+        //{
+        //    try
+        //    {
+        //        Client.Open();
+        //        Client.Close();
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
 
-                    reader.Read();
-                    T maxId = (T)reader[0];
-                    await Connection.CloseAsync();
-					return maxId;
-				}
+        public static async Task<T> GetMaxIdentifier<T>(Type table)
+        {
+			if (Connection == null)
+				throw new ArgumentNullException(nameof(Connection));
+
+			switch (table.ToString())
+			{
+				case "OnBaseDocument":
+					var result = await Connection.client.From<Document>().Order(a => a.DocHandle, Constants.Ordering.Descending).Single();
+                    return result == null ? (T)Convert.ChangeType(-1, typeof(T)) : (T) Convert.ChangeType(result.DocHandle, typeof(T));
+				default:
+					throw new NotSupportedException();
 			}
 		}
 

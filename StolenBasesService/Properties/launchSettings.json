@@ -1,11 +1,18 @@
 ﻿{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "BaseRunnerService": {
+    "Dev": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "SUPABASE_URL": "https://gzvcqeztgpptksetglfp.supabase.co",
+        "SUPABASE_APIKEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dmNxZXp0Z3BwdGtzZXRnbGZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcxNzI4NTAxNSwiZXhwIjoyMDMyODYxMDE1fQ.F4fNAJAI9_7UeiR7dtmwx2pB2qtmgGIIAV9EezqyREk",
+        "PGDATABASE": "postgres",
+        "PGHOST": "aws-0-us-east-1.pooler.supabase.com",
+        "PGPASSWORD": "sLD$zCKfV3j@",
+        "PGPORT": "6543",
+        "PGUSER": "postgres.gzvcqeztgpptksetglfp"
       }
     }
   }

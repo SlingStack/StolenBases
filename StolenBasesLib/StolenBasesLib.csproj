@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Npgsql" Version="8.0.2" />
+    <PackageReference Include="Supabase" Version="1.0.3" />
   </ItemGroup>
 
 </Project>

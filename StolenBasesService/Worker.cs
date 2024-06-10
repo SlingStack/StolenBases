@@ -2,9 +2,8 @@ using StolenBasesLib;
 using StolenBasesLib.Connections;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
-using StolenBasesService;
 
-namespace BaseRunnerService
+namespace StolenBasesService
 {
     public class Worker(IBackgroundTaskQueue taskQueue, ILogger<Worker> logger) : BackgroundService
     {
@@ -15,14 +14,14 @@ namespace BaseRunnerService
         {
             try
             {
-                ConversionDB.SetConnectionString("Host=127.0.0.1;port=5432;Database=postgres;Username=postgres;Password=password");
+                //ConversionDB.SetConnectionParameters()
                 //onBaseDB.SetConnectionString("");
 
                 //int maxIdentifier = await ConversionDB.GetMaxIdentifier<int>();
                 
                 //Progress<double> progress = new Progress<double>(percent => { _logger.LogInformation($"Copying Doc Handles. Percent Complete: {percent}"); });
                 //await Task.Run(() => onBaseDB.RetrieveNewDocHandles(maxIdentifier, progress, 1000));
-                logger.LogInformation($"Connection Status: {ConversionDB.TestConnection()}");
+                //logger.LogInformation($"Connection Status: {ConversionDB.TestConnection()}");
             }
             catch (Exception ex)
             {
