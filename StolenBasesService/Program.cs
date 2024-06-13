@@ -2,7 +2,8 @@ using StolenBasesService;
 using StolenBasesLib.Connections;
 using StolenBasesLib;
 
-var builder = Host.CreateApplicationBuilder(args);
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSingleton<MonitorLoop>();
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddSingleton<IBackgroundTaskQueue>(_ =>
@@ -15,14 +16,18 @@ builder.Services.AddSingleton<IBackgroundTaskQueue>(_ =>
 	return new DefaultBackgroundTaskQueue(queueCapacity);
 });
 
-string? url = Environment.GetEnvironmentVariable("SUPABASE_URL");
-string? key = Environment.GetEnvironmentVariable("SUPABASE_APIKEY");
+
+var host = builder.Build();
+var config = host.Services.GetRequiredService<IConfiguration>();
+
+string? url = config.GetValue<string>("Supabase:URL");
+string? key = config.GetValue<string>("Supabase:APIKey"); ;
 if (url != null && key != null)
 	await ConversionDB.SetConnectionParameters(url, key);
 else
 	throw new ArgumentNullException("Supabase url or api key is null");
 
-var host = builder.Build();
+
 
 MonitorLoop monitorLoop = host.Services.GetRequiredService<MonitorLoop>();
 monitorLoop.StartMonitorLoop();

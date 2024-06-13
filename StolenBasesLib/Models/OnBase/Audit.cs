@@ -8,8 +8,8 @@ namespace StolenBasesLib.Models.OnBase
 {
 	public class Audit
 	{
-		public List<TransactionLog>? TransactionLog { get; set; }
-		public List<WorkflowLog>? WorkflowLog { get; set; }
-		public List<WorkflowTransaction>? WorkflowTransactions { get; set; }
+		public List<TransactionLog> TransactionLog { get; set; } = new List<TransactionLog>();
+		public List<WorkflowLog> WorkflowLog { get; set; } = new List<WorkflowLog>();
+		public List<WorkflowTransaction> WorkflowTransactions { get; set; } = new List<WorkflowTransaction>();
 	}
 }

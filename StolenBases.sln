@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StolenBasesService", "Stole
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StolenBasesLib", "StolenBasesLib\StolenBasesLib.csproj", "{C331C3B9-8818-41F6-9FDD-3070F584B0C1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{289A3458-7743-4FD0-882A-295EB44F4DB9}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
