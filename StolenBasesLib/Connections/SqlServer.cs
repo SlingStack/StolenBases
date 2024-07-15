@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace StolenBasesLib.Connections
 {
-    public class SqlServer : Connection
+    public class SqlServer
     {
         public SqlConnection Connection { get; private set; }
 

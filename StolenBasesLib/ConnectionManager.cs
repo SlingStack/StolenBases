@@ -16,18 +16,34 @@ namespace StolenBasesLib
 			ConfiguredConnections.Add(connection);
 		}
 
-		public static bool TryGetConnection(string name, out Connection connection)
+		public static bool TryGetConnection(string name, out Connection? connection)
 		{
-			connection = ConfiguredConnections.FirstOrDefault(a => a.Name == name)!;
-			if (connection == null) { return false; }
-			return true;
+			try
+			{
+				connection = ConfiguredConnections.FirstOrDefault(a => a.Name == name)!;
+				if (connection == null) { return false; }
+				return true;
+			}
+			catch
+			{
+				connection = null;
+				return false;
+			}
 		}
 
-		public static bool TryGetDefaultConnection<T>(out Connection connection)
-		{
-			connection = ConfiguredConnections.FirstOrDefault(a => a.GetType() == typeof(T) && a.Default)!;
-			if(connection == null) { return false; }
-			return true;
-		}
+		//public static bool TryGetDefaultConnection(out Connection? connection)
+		//{
+		//	try
+		//	{
+		//		connection = ConfiguredConnections.FirstOrDefault(a => a.GetType() == typeof(T) && a.Default)!;
+		//		if (connection == null) { return false; }
+		//		return true;
+		//	}
+		//	catch
+		//	{
+		//		connection = null;
+		//		return false;
+		//	}
+		//}
 	}
 }

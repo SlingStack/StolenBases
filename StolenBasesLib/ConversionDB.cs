@@ -21,35 +21,23 @@ namespace StolenBasesLib
             Connection = await SupabaseConnection.InitializeClient(url, apiKey);
         }
 
-        public static async Task<bool> IdentifierExists<T>(T identifier, Type table)
+        public static async Task<bool> IdentifierExists(int identifier, string sourceName)
         {
             if(Connection == null)
                 throw new ArgumentNullException(nameof(Connection));
 
-            switch (table.ToString())
-            {
-                case "OnBaseDocument":
-					var result = await Connection.client.From<Document>().Where(a => a.DocHandle == Convert.ToInt32(identifier)).Single();
-                    return result == null ? false : true;
-                default:
-                    throw new NotSupportedException();
-			}
+
+			var result = await Connection.client.From<ConversionItem>().Where(a => a.SourceId == Convert.ToInt32(identifier)).Single();
+            return result == null ? false : true;
         }
 
-        public static async Task InsertConversionObject<T>(T identifier, Type table)
+        public static async Task InsertConversionObject(int identifier, ConversionItem item)
         {
 			if (Connection == null)
 				throw new ArgumentNullException(nameof(Connection));
 
-			switch (table.ToString())
-			{
-				case "OnBaseDocument":
-                    Document document = new Document { DocHandle = Convert.ToInt32(identifier) };
-					var result = await Connection.client.From<Document>().Insert(document);
-                    return;
-				default:
-					throw new NotSupportedException();
-			}
+			var result = await Connection.client.From<ConversionItem>().Insert(item);
+			return;
 		}
         
         //public static bool TestConnection()
@@ -66,20 +54,39 @@ namespace StolenBasesLib
         //    }
         //}
 
-        public static async Task<T> GetMaxIdentifier<T>(Type table)
+        public static async Task<int> GetMaxIdentifier(string sourceName, string sourceType)
         {
 			if (Connection == null)
 				throw new ArgumentNullException(nameof(Connection));
 
-			switch (table.ToString())
-			{
-				case "OnBaseDocument":
-					var result = await Connection.client.From<Document>().Order(a => a.DocHandle, Constants.Ordering.Descending).Single();
-                    return result == null ? (T)Convert.ChangeType(-1, typeof(T)) : (T) Convert.ChangeType(result.DocHandle, typeof(T));
-				default:
-					throw new NotSupportedException();
-			}
+			var result = await Connection.client.From<ConversionItem>()
+                .Where(a => a.SourceName == sourceName && a.SourceType == sourceType)
+                .Order(a => a.SourceId, Constants.Ordering.Descending).Single();
+			return result == null ? -1 : result.SourceId;
 		}
+
+        public static async Task<bool> UpdateConversionItemData(int conversionId, string jsonData)
+        {
+			if (Connection == null)
+				throw new ArgumentNullException(nameof(Connection));
+
+            var model = await Connection.client.From<ConversionItem>()
+                .Where(a => a.ConversionId == conversionId)
+                .Single();
+
+            model.Data = jsonData;
+
+            var result = await model.Update<ConversionItem>();
+
+            if (result.ResponseMessage.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
     }
 }

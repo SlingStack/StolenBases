@@ -27,7 +27,12 @@ if (url != null && key != null)
 else
 	throw new ArgumentNullException("Supabase url or api key is null");
 
+string? obConnString = config.GetValue<string>("OnBase:ConnectionString");
+if (obConnString == null)
+	throw new ArgumentNullException("OnBase connection string is missing.");
 
+OnBaseDB onBaseDB = new OnBaseDB(obConnString);
+Connection obConnection = new Connection("OB1", onBaseDB, ConnectionType.OnBase, true);
 
 MonitorLoop monitorLoop = host.Services.GetRequiredService<MonitorLoop>();
 monitorLoop.StartMonitorLoop();

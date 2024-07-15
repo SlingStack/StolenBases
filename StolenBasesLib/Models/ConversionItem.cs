@@ -17,6 +17,9 @@ namespace StolenBasesLib.Models
 		[Column("source")]
 		public string? Source { get; set; }
 
+		[Column("source_name")]
+		public string? SourceName { get; set; }
+
 		[Column("source_id")]
 		public int SourceId { get; set; }
 

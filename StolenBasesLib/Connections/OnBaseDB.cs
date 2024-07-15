@@ -79,7 +79,7 @@ namespace StolenBasesLib.Connections
 			return docHandles;
 		}
 
-		public async Task GetDocumentInfo(int itemnum)
+		public async Task<Document> GetDocumentInfo(int itemnum)
 		{
 			await Connection.OpenAsync();
 
@@ -100,7 +100,7 @@ namespace StolenBasesLib.Connections
 				SqlDataReader reader = await command.ExecuteReaderAsync();
 				if (!reader.HasRows)
 				{
-					return;
+					return null;
 				}
 
 				await reader.ReadAsync();
@@ -328,6 +328,7 @@ namespace StolenBasesLib.Connections
 
 			Connection.CloseAsync();
 
+			return document;
 		}
 
 		public async Task<string> GetKeywordQuery(string docType)

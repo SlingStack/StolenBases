@@ -11,6 +11,7 @@ using StolenBasesLib;
 using StolenBasesLib.Models.OnBase;
 using StolenBasesLib.Models;
 using Supabase.Postgrest.Responses;
+using System.Text.Json;
 
 namespace StolenBasesService
 {
@@ -36,8 +37,13 @@ namespace StolenBasesService
 						Add(logger, args[1..3]);
 						break;
 					case "/record":
-						if (args.Length < 2)
-							throw new Exception("Must provide the conversion objects.");
+						if (args.Length < 3)
+						{
+							string message = "Missing argument.";
+							message += "\rExpected syntax: /record [SourceName] [SourceType]";
+							throw new Exception(message);
+						}
+							
 						await Record(logger, args[1..args.Length]);
 						break;
 					case "/run":
@@ -85,43 +91,50 @@ namespace StolenBasesService
 		private static async Task Record(ILogger logger, string[] args)
 		{
 			//Get OnBase connection from ConnectionManager
-			//Connection connection;
-			//if (!ConnectionManager.TryGetDefaultConnection<OnBaseDB>(out connection))
-			//{
-			//	logger.LogError("Default OnBase connection does not exist.");
-			//	return;
-			//}
-
-			//OnBaseDB ob = (OnBaseDB)connection;
-			OnBaseDB ob = new OnBaseDB("");
-			
-			//Get doc handles
-			if (args[0] == "all" || args[0] == "documents")
+			Connection? connection;
+			if (!ConnectionManager.TryGetConnection(args[0], out connection))
 			{
-				logger.LogInformation("Recording documents to conversion database.");
-				
-				//Get max doc handle
-				int maxDocHandle = 0;
-				var docWithMaxHandle = await ConversionDB.Connection.client
-					.From<ConversionItem>()
-					.Where(x => x.Source == "onbase" && x.SourceType == "document")
-					.Select(x => new object[] { x.SourceId })
-					.Order(x => x.SourceId, Supabase.Postgrest.Constants.Ordering.Descending)
-					.Limit(1)
-					.Get();
-				if(docWithMaxHandle != null) { maxDocHandle = docWithMaxHandle.Models[0].SourceId; }
-				
-				//Query OnBase for new doc handles
-				int[] docHandles = await ob.RetrieveNewDocHandles(maxDocHandle);
-				List<ConversionItem> documentList = new List<ConversionItem>();
-				foreach (int docHandle in docHandles)
-				{
-					documentList.Add(new ConversionItem { SourceId = docHandle, Source = "onbase", SourceType = "document" });
-				}
-
-				//Save doc handles
-				await ConversionDB.Connection.client.From<ConversionItem>().Insert(documentList);
+				throw new ArgumentNullException($"Connection with name {args[0]} does not exist.");
 			}
+
+			if (connection == null) { throw new ArgumentNullException("Connection is null."); }
+
+			switch (connection.ConnectionType)
+			{
+				case ConnectionType.OnBase:
+					OnBaseDB ob = connection.Value;
+					
+					//Get doc handles
+					if (args[0] == "all" || args[0] == "documents")
+					{
+						logger.LogInformation("Recording documents to conversion database.");
+
+						//Get max doc handle
+						int maxDocHandle = 0;
+						var docWithMaxHandle = await ConversionDB.Connection.client
+							.From<ConversionItem>()
+							.Where(x => x.Source == "onbase" && x.SourceType == "document")
+							.Select(x => new object[] { x.SourceId })
+							.Order(x => x.SourceId, Supabase.Postgrest.Constants.Ordering.Descending)
+							.Limit(1)
+							.Get();
+						if (docWithMaxHandle != null) { maxDocHandle = docWithMaxHandle.Models[0].SourceId; }
+
+						//Query OnBase for new doc handles
+						int[] docHandles = await ob.RetrieveNewDocHandles(maxDocHandle);
+						List<ConversionItem> documentList = new List<ConversionItem>();
+						foreach (int docHandle in docHandles)
+						{
+							documentList.Add(new ConversionItem { SourceId = docHandle, Source = "onbase", SourceType = "document" });
+						}
+
+						//Save doc handles
+						await ConversionDB.Connection.client.From<ConversionItem>().Insert(documentList);
+					}
+					break;
+				default:
+					throw new NotImplementedException();
+			}			
 		}
 
 		private static async Task Run()
@@ -136,7 +149,20 @@ namespace StolenBasesService
 			{
 				if(item.Source == "onbase" && item.SourceType == "document")
 				{
+					//Get OnBase connection from ConnectionManager
+					Connection? connection;
+					if (!ConnectionManager.TryGetConnection(item.SourceName, out connection))
+					{
+						throw new ArgumentNullException($"Connection with name {item.SourceName} does not exist.");
+					}
 
+					if (connection == null) { throw new ArgumentNullException("Connection is null."); }
+
+					OnBaseDB ob = connection.Value;
+
+					Document doc = await ob.GetDocumentInfo(item.SourceId);
+					string json = JsonSerializer.Serialize(doc);
+					ConversionDB.UpdateConversionItemData(item.ConversionId, json);
 				}
 			}
 		}
