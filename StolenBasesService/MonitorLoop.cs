@@ -27,6 +27,7 @@ namespace StolenBasesService
 				if (!string.IsNullOrEmpty(command))
 				{
 					// Enqueue a background work item
+					CancellationTokenSource cts = new CancellationTokenSource();
 					QueueCommand qc = new(BuildWorkItemAsync, command);
 					await taskQueue.QueueBackgroundWorkItemAsync(qc);
 				}
@@ -35,10 +36,6 @@ namespace StolenBasesService
 
 		private async ValueTask BuildWorkItemAsync(CancellationToken token, string command)
 		{
-			// Simulate three 5-second tasks to complete
-			// for each enqueued work item
-
-			var guid = Guid.NewGuid();
 
 			if (!token.IsCancellationRequested)
 			{

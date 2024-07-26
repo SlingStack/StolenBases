@@ -30,9 +30,18 @@ namespace StolenBasesService
 			await _queue.Writer.WriteAsync(qc);
 		}
 
-		public async ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAsync(CancellationToken cancellationToken)
+		public async ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAsync(CancellationToken token)
 		{
-			IAsyncEnumerable<QueueCommand>? qc = _queue.Reader.ReadAllAsync(cancellationToken);
+			IAsyncEnumerable<QueueCommand>? qc = _queue.Reader.ReadAllAsync(token);
+			//var result = await _queue.Reader.WaitToReadAsync(token);
+
+			return qc;
+		}
+
+		public async ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAllAsync()
+		{
+
+			IAsyncEnumerable<QueueCommand>? qc = _queue.Reader.ReadAllAsync();
 
 			return qc;
 		}

@@ -17,6 +17,8 @@ namespace StolenBasesService
 {
 	public static class ConsoleCommands
 	{
+		private static CancellationTokenSource cancellationTokenSource = new();
+
 		public static async void RunCommand(string command, ILogger logger)
 		{
 			if (command == null) { return; }
@@ -43,22 +45,29 @@ namespace StolenBasesService
 							message += "\rExpected syntax: /record [SourceName] [SourceType]";
 							throw new Exception(message);
 						}
-							
+
 						await Record(logger, args[1..args.Length]);
 						break;
 					case "/run":
-
+						Run();
+						break;
+					case "/runtest":
+						RunTest(logger);
+						break;
+					case "/stop":
+						await cancellationTokenSource.CancelAsync();
+						cancellationTokenSource = new CancellationTokenSource();
 						break;
 					default:
 						logger.LogError($"Command {args[0]} does not exist.");
 						break;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				logger.LogError($"{ex.Message}");
 			}
-			
+
 		}
 
 		private static string[] GetArgs(string input)
@@ -103,7 +112,7 @@ namespace StolenBasesService
 			{
 				case ConnectionType.OnBase:
 					OnBaseDB ob = connection.Value;
-					
+
 					//Get doc handles
 					if (args[0] == "all" || args[0] == "documents")
 					{
@@ -134,36 +143,56 @@ namespace StolenBasesService
 					break;
 				default:
 					throw new NotImplementedException();
-			}			
+			}
 		}
 
 		private static async Task Run()
 		{
-			ModeledResponse<ConversionItem> itemsToConvert = await ConversionDB.Connection.client.From<ConversionItem>()
+			CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+			while (!cancellationToken.IsCancellationRequested)
+			{
+				ModeledResponse<ConversionItem> itemsToConvert = await ConversionDB.Connection.client.From<ConversionItem>()
 				.Where(x => !x.WasConverted)
 				.Order(x => x.SourceId, Supabase.Postgrest.Constants.Ordering.Descending)
 				.Limit(1000)
 				.Get();
 
-			foreach(ConversionItem item in itemsToConvert.Models)
-			{
-				if(item.Source == "onbase" && item.SourceType == "document")
+				foreach (ConversionItem item in itemsToConvert.Models)
 				{
-					//Get OnBase connection from ConnectionManager
-					Connection? connection;
-					if (!ConnectionManager.TryGetConnection(item.SourceName, out connection))
+					if (item.Source == "onbase" && item.SourceType == "document")
 					{
-						throw new ArgumentNullException($"Connection with name {item.SourceName} does not exist.");
+						//Get OnBase connection from ConnectionManager
+						Connection? connection;
+						if (!ConnectionManager.TryGetConnection(item.SourceName, out connection))
+						{
+							throw new ArgumentNullException($"Connection with name {item.SourceName} does not exist.");
+						}
+
+						if (connection == null) { throw new ArgumentNullException("Connection is null."); }
+
+						OnBaseDB ob = connection.Value;
+
+						Document doc = await ob.GetDocumentInfo(item.SourceId);
+						string json = JsonSerializer.Serialize(doc);
+						ConversionDB.UpdateConversionItemData(item.ConversionId, json);
 					}
 
-					if (connection == null) { throw new ArgumentNullException("Connection is null."); }
-
-					OnBaseDB ob = connection.Value;
-
-					Document doc = await ob.GetDocumentInfo(item.SourceId);
-					string json = JsonSerializer.Serialize(doc);
-					ConversionDB.UpdateConversionItemData(item.ConversionId, json);
+					if (cancellationToken.IsCancellationRequested) { break; }
 				}
+			}
+		}
+
+		private static async Task RunTest(ILogger logger)
+		{
+			CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+			int i = 0;
+			while (!cancellationToken.IsCancellationRequested && i < 10)
+			{
+				logger.LogInformation(i.ToString());
+				i++;
+				Thread.SpinWait(50000000);
 			}
 		}
 	}

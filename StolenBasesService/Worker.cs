@@ -9,6 +9,7 @@ namespace StolenBasesService
     {
         private OnBaseDB onBaseDB;
         private readonly ChannelReader<string> channel;
+        private readonly CancellationTokenSource cancellationTokenSource;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -33,11 +34,12 @@ namespace StolenBasesService
             {
 				try
 				{                    
-                    IAsyncEnumerable<QueueCommand>? qcEnumberable = await taskQueue.DequeueAsync(stoppingToken);
+                    IAsyncEnumerable<QueueCommand> qcEnumberable = await taskQueue.DequeueAsync(stoppingToken);
+                    //List<QueueCommand> qcList = await qcEnumberable.ToListAsync();
 
-					await foreach(QueueCommand qc in qcEnumberable)
-                    {
-						await qc.QueueFunc(stoppingToken, qc.Command);
+					await foreach (QueueCommand qc in qcEnumberable)
+					{
+                        Task.Run(() => { qc.QueueFunc(stoppingToken, qc.Command); }, stoppingToken);
 					}
 
 					logger.LogInformation("Looping...");

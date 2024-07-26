@@ -10,6 +10,8 @@ namespace StolenBasesService
 	{
 		ValueTask QueueBackgroundWorkItemAsync(QueueCommand queueCommand);
 
-		ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAsync(CancellationToken cancellationToken);
+		ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAsync(CancellationToken token);
+
+		ValueTask<IAsyncEnumerable<QueueCommand>> DequeueAllAsync();
 	}
 }

@@ -22,10 +22,10 @@ var config = host.Services.GetRequiredService<IConfiguration>();
 
 string? url = config.GetValue<string>("Supabase:URL");
 string? key = config.GetValue<string>("Supabase:APIKey"); ;
-if (url != null && key != null)
-	await ConversionDB.SetConnectionParameters(url, key);
-else
-	throw new ArgumentNullException("Supabase url or api key is null");
+//if (url != null && key != null)
+//	await ConversionDB.SetConnectionParameters(url, key);
+//else
+//	throw new ArgumentNullException("Supabase url or api key is null");
 
 string? obConnString = config.GetValue<string>("OnBase:ConnectionString");
 if (obConnString == null)
