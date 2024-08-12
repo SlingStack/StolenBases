@@ -14,8 +14,8 @@ namespace StolenBasesLib.Models
 		[PrimaryKey("id")]
 		public int ConversionId { get; set; }
 
-		[Column("source")]
-		public string? Source { get; set; }
+		[Column("source_platform")]
+		public string? SourcePlatform { get; set; }
 
 		[Column("source_name")]
 		public string? SourceName { get; set; }

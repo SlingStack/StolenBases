@@ -12,14 +12,17 @@ using StolenBasesLib.Models.OnBase;
 using StolenBasesLib.Models;
 using Supabase.Postgrest.Responses;
 using System.Text.Json;
+using Supabase.Core;
+using System.Web;
 
 namespace StolenBasesService
 {
 	public static class ConsoleCommands
 	{
 		private static CancellationTokenSource cancellationTokenSource = new();
+		private static ILogger logger = LoggingHelper.CreateConsoleLogger("ConsoleCommands");
 
-		public static async void RunCommand(string command, ILogger logger)
+		public static async void RunCommand(string command)
 		{
 			if (command == null) { return; }
 
@@ -122,7 +125,7 @@ namespace StolenBasesService
 						int maxDocHandle = 0;
 						var docWithMaxHandle = await ConversionDB.Connection.client
 							.From<ConversionItem>()
-							.Where(x => x.Source == "onbase" && x.SourceType == "document")
+							.Where(x => x.SourcePlatform == "onbase" && x.SourceType == "document")
 							.Select(x => new object[] { x.SourceId })
 							.Order(x => x.SourceId, Supabase.Postgrest.Constants.Ordering.Descending)
 							.Limit(1)
@@ -134,7 +137,7 @@ namespace StolenBasesService
 						List<ConversionItem> documentList = new List<ConversionItem>();
 						foreach (int docHandle in docHandles)
 						{
-							documentList.Add(new ConversionItem { SourceId = docHandle, Source = "onbase", SourceType = "document" });
+							documentList.Add(new ConversionItem { SourceId = docHandle, SourcePlatform = "onbase", SourceType = "document" });
 						}
 
 						//Save doc handles
@@ -160,7 +163,7 @@ namespace StolenBasesService
 
 				foreach (ConversionItem item in itemsToConvert.Models)
 				{
-					if (item.Source == "onbase" && item.SourceType == "document")
+					if (item.SourcePlatform == "onbase" && item.SourceType == "document")
 					{
 						//Get OnBase connection from ConnectionManager
 						Connection? connection;

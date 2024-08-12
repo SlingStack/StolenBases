@@ -41,7 +41,7 @@ namespace StolenBasesService
 			{
 				try
 				{
-					ConsoleCommands.RunCommand(command, logger);
+					ConsoleCommands.RunCommand(command);
 				}
 				catch (OperationCanceledException)
 				{

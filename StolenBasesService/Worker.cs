@@ -10,8 +10,10 @@ namespace StolenBasesService
         private OnBaseDB onBaseDB;
         private readonly ChannelReader<string> channel;
         private readonly CancellationTokenSource cancellationTokenSource;
+  //      private readonly ILogger logger = LoggingHelper.CreateLogger("Worker");
+		//private readonly ILoggerFile filelogger = LoggingHelper.CreateLogger("Worker");
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {

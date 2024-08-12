@@ -85,3 +85,36 @@
         }
     }
 }
+
+{
+    "id": "uuid",
+    "sourcePlatform": "OnBase",
+    "sourceName": "string",
+    "sourceId": 0,
+    "sourceType": "WorkviewObject",
+    "metadata": { 
+        "workviewObject": {
+            "objectId": 0,
+            "objectName": "string",
+            "className": "string",
+            "applicationName": "string",
+            "createdBy": "string",
+            "dateCreated": "datetime",
+            "status": "string",
+            "revision": 0,
+            "revisionDate": "datetime",
+            "attributes": [{
+                "name": "string",
+                "datatype": "string",
+                "value": "string"
+            }],
+            "history": [{
+                "attributeName": "string",
+                "transactionDate": "datetime",
+                "startValue": "string",
+                "endValue": "string",
+                "userName": "string"
+            }]
+        }
+    }
+}

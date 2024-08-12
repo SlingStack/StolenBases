@@ -1,6 +1,7 @@
 using StolenBasesService;
 using StolenBasesLib.Connections;
 using StolenBasesLib;
+using Microsoft.Extensions.Logging;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -15,6 +16,10 @@ builder.Services.AddSingleton<IBackgroundTaskQueue>(_ =>
 
 	return new DefaultBackgroundTaskQueue(queueCapacity);
 });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSimpleConsole();
+builder.Logging.AddProvider(new ILoggerFileProvider(new StreamWriter("log.txt")));
 
 
 var host = builder.Build();
