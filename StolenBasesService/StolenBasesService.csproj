@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StolenBasesClient\StolenBasesClient.csproj" />
     <ProjectReference Include="..\StolenBasesLib\StolenBasesLib.csproj" />
   </ItemGroup>
 </Project>

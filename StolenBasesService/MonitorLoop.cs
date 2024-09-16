@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
+using System.IO;
+using System.Threading;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace StolenBasesService
 {
@@ -23,25 +29,37 @@ namespace StolenBasesService
 		{
 			while (!_cancellationToken.IsCancellationRequested)
 			{
-				string command = Console.ReadLine();
+				NamedPipeServerStream pipeServer = new NamedPipeServerStream("StolenBasesService", PipeDirection.InOut, 2);
+				int threadId = Thread.CurrentThread.ManagedThreadId;
+				pipeServer.WaitForConnection();
+
+				logger.LogInformation($"Client connected on thread {threadId}");
+
+				StreamString ss = new StreamString(pipeServer);
+
+				string command = ss.ReadString();
 				if (!string.IsNullOrEmpty(command))
 				{
 					// Enqueue a background work item
 					CancellationTokenSource cts = new CancellationTokenSource();
-					QueueCommand qc = new(BuildWorkItemAsync, command);
+					QueueCommand qc = new(BuildWorkItemAsync, command, pipeServer);
 					await taskQueue.QueueBackgroundWorkItemAsync(qc);
 				}
 			}
 		}
 
-		private async ValueTask BuildWorkItemAsync(CancellationToken token, string command)
+		private async ValueTask BuildWorkItemAsync(CancellationToken token, string command, NamedPipeServerStream namedPipe)
 		{
 
 			if (!token.IsCancellationRequested)
 			{
 				try
 				{
-					ConsoleCommands.RunCommand(command);
+					string response = await ConsoleCommands.RunCommand(command);
+					StreamString ss = new StreamString(namedPipe);
+					ss.WriteString(response);
+					namedPipe.Disconnect();
+					namedPipe.Dispose();
 				}
 				catch (OperationCanceledException)
 				{

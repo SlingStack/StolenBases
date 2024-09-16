@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StolenBasesClient", "StolenBasesClient\StolenBasesClient.csproj", "{7773B27D-10A5-4A6D-93CE-C9D49230CC3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{C331C3B9-8818-41F6-9FDD-3070F584B0C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C331C3B9-8818-41F6-9FDD-3070F584B0C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C331C3B9-8818-41F6-9FDD-3070F584B0C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7773B27D-10A5-4A6D-93CE-C9D49230CC3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7773B27D-10A5-4A6D-93CE-C9D49230CC3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7773B27D-10A5-4A6D-93CE-C9D49230CC3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7773B27D-10A5-4A6D-93CE-C9D49230CC3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,17 +14,25 @@ using Supabase.Postgrest.Responses;
 using System.Text.Json;
 using Supabase.Core;
 using System.Web;
+using Azure;
 
 namespace StolenBasesService
 {
 	public static class ConsoleCommands
 	{
 		private static CancellationTokenSource cancellationTokenSource = new();
-		private static ILogger logger = LoggingHelper.CreateConsoleLogger("ConsoleCommands");
+		private static string loggerCategory = "ConsoleCommands";
 
-		public static async void RunCommand(string command)
+		public static async Task<string> RunCommand(string command)
 		{
-			if (command == null) { return; }
+			string response = "";
+
+			if (command == null) { return ""; }
+			if (!LoggingHelper.Exists(loggerCategory))
+			{
+				LoggingHelper.AddLogger(loggerCategory, LoggingType.All);
+			}
+
 
 			command = command.ToLower();
 			string[] args = GetArgs(command);
@@ -34,12 +42,12 @@ namespace StolenBasesService
 				switch (args[0])
 				{
 					case "/hi":
-						Hi(logger);
+						response = Hi();
 						break;
 					case "/add":
 						if (args.Length < 3)
 							throw new Exception("Must provide 2 numbers.");
-						Add(logger, args[1..3]);
+						response = Add(args[1..3]);
 						break;
 					case "/record":
 						if (args.Length < 3)
@@ -49,28 +57,41 @@ namespace StolenBasesService
 							throw new Exception(message);
 						}
 
-						await Record(logger, args[1..args.Length]);
+						await Record(args[1..args.Length]);
 						break;
 					case "/run":
 						Run();
 						break;
 					case "/runtest":
-						RunTest(logger);
+						response = "Running Test...";
+						Task.Run(RunTest);
 						break;
 					case "/stop":
 						await cancellationTokenSource.CancelAsync();
 						cancellationTokenSource = new CancellationTokenSource();
 						break;
 					default:
-						logger.LogError($"Command {args[0]} does not exist.");
+						Log($"Command {args[0]} does not exist.", LogLevel.Error);
 						break;
 				}
 			}
 			catch (Exception ex)
 			{
-				logger.LogError($"{ex.Message}");
+				Log($"{ex.Message}", LogLevel.Error);
 			}
 
+			return response;
+
+		}
+
+		private static void Log(string message)
+		{
+			LoggingHelper.Log(loggerCategory, message);
+		}
+
+		private static void Log(string message, LogLevel logLevel)
+		{
+			LoggingHelper.Log(loggerCategory, message, logLevel);
 		}
 
 		private static string[] GetArgs(string input)
@@ -86,21 +107,23 @@ namespace StolenBasesService
 			return matchList.ToArray();
 		}
 
-		private static void Hi(ILogger logger)
+		private static string Hi()
 		{
-			logger.LogInformation("Hello.");
+			Log("Hello.");
+			return "Hello.";
 		}
 
-		private static void Add(ILogger logger, string[] args)
+		private static string Add(string[] args)
 		{
 			double a, b;
-			if (!double.TryParse(args[0], out a)) { logger.LogError($"{args[0]} does not parse as type double."); }
-			if (!double.TryParse(args[1], out b)) { logger.LogError($"{args[1]} does not parse as type double."); }
+			if (!double.TryParse(args[0], out a)) { Log($"{args[0]} does not parse as type double.", LogLevel.Error); }
+			if (!double.TryParse(args[1], out b)) { Log($"{args[1]} does not parse as type double.", LogLevel.Error); }
 
-			logger.LogInformation($"{a} + {b} = {a + b}");
+			Log($"{a} + {b} = {a + b}");
+			return (a + b).ToString();
 		}
 
-		private static async Task Record(ILogger logger, string[] args)
+		private static async Task Record(string[] args)
 		{
 			//Get OnBase connection from ConnectionManager
 			Connection? connection;
@@ -119,7 +142,7 @@ namespace StolenBasesService
 					//Get doc handles
 					if (args[0] == "all" || args[0] == "documents")
 					{
-						logger.LogInformation("Recording documents to conversion database.");
+						Log("Recording documents to conversion database.");
 
 						//Get max doc handle
 						int maxDocHandle = 0;
@@ -186,14 +209,14 @@ namespace StolenBasesService
 			}
 		}
 
-		private static async Task RunTest(ILogger logger)
+		private static async Task RunTest()
 		{
 			CancellationToken cancellationToken = cancellationTokenSource.Token;
 
 			int i = 0;
-			while (!cancellationToken.IsCancellationRequested && i < 10)
+			while (!cancellationToken.IsCancellationRequested && i < 5)
 			{
-				logger.LogInformation(i.ToString());
+				Log((i+1).ToString());
 				i++;
 				Thread.SpinWait(50000000);
 			}

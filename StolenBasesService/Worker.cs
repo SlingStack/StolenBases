@@ -41,7 +41,7 @@ namespace StolenBasesService
 
 					await foreach (QueueCommand qc in qcEnumberable)
 					{
-                        Task.Run(() => { qc.QueueFunc(stoppingToken, qc.Command); }, stoppingToken);
+                        Task.Run(() => { qc.QueueFunc(stoppingToken, qc.Command, qc.PipeStream); }, stoppingToken);
 					}
 
 					logger.LogInformation("Looping...");

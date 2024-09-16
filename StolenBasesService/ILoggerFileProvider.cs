@@ -8,21 +8,21 @@ namespace StolenBasesService
 {
 	internal class ILoggerFileProvider : ILoggerProvider
 	{
-		private readonly StreamWriter _logFileWriter;
+		private readonly string _logFilePath;
 
-		public ILoggerFileProvider(StreamWriter logFileWriter)
+		public ILoggerFileProvider(string logFilePath)
 		{
-			_logFileWriter = logFileWriter ?? throw new ArgumentNullException(nameof(logFileWriter));
+			_logFilePath = logFilePath ?? throw new ArgumentNullException(nameof(logFilePath));
 		}
 
 		public ILogger CreateLogger(string categoryName)
 		{
-			return new ILoggerFile(categoryName, _logFileWriter);
+			return new ILoggerFile(categoryName, _logFilePath);
 		}
 
-		public void Dispose()
+		void IDisposable.Dispose()
 		{
-			_logFileWriter.Dispose();
+			//throw new NotImplementedException();
 		}
 	}
 }

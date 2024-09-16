@@ -19,11 +19,17 @@ builder.Services.AddSingleton<IBackgroundTaskQueue>(_ =>
 
 builder.Logging.ClearProviders();
 builder.Logging.AddSimpleConsole();
-builder.Logging.AddProvider(new ILoggerFileProvider(new StreamWriter("log.txt")));
+builder.Logging.AddProvider(new ILoggerFileProvider("log.txt"));
 
 
 var host = builder.Build();
 var config = host.Services.GetRequiredService<IConfiguration>();
+
+LogLevel defaultLogLevel;
+if(Enum.TryParse<LogLevel>(config.GetValue<string>("Logging:LogLevel:Default"), out defaultLogLevel))
+{
+	LoggingHelper.defaultLogLevel = defaultLogLevel;
+}
 
 string? url = config.GetValue<string>("Supabase:URL");
 string? key = config.GetValue<string>("Supabase:APIKey"); ;

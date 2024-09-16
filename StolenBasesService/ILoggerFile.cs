@@ -9,12 +9,12 @@ namespace StolenBasesService
 	internal class ILoggerFile : ILogger
 	{
 		private readonly string _categoryName;
-		private readonly StreamWriter _logFileWriter;
+		private readonly string _logFilePath;
 
-		public ILoggerFile(string categoryName, StreamWriter logFileWriter)
+		public ILoggerFile(string categoryName, string logFilePath)
 		{
 			_categoryName = categoryName;
-			_logFileWriter = logFileWriter;
+			_logFilePath = logFilePath;
 		}
 
 		public IDisposable BeginScope<TState>(TState state)
@@ -25,7 +25,7 @@ namespace StolenBasesService
 		public bool IsEnabled(LogLevel logLevel)
 		{
 			// Ensure that only information level and higher logs are recorded
-			return logLevel >= LogLevel.Information;
+			return logLevel >= LogLevel.Trace;
 		}
 
 		public void Log<TState>(
@@ -45,8 +45,12 @@ namespace StolenBasesService
 			var message = formatter(state, exception);
 
 			//Write log messages to text file
-			_logFileWriter.WriteLine($"[{logLevel}] [{_categoryName}] {message}");
-			_logFileWriter.Flush();
+			using(StreamWriter sw = new(_logFilePath))
+			{
+				sw.WriteLine($"[{logLevel}] [{_categoryName}] {message}");
+				sw.Flush();
+			}	
+			
 		}
 	}
 }
